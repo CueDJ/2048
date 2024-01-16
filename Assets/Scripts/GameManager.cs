@@ -27,22 +27,7 @@ public class GameManager : MonoBehaviour
         }
         UpdateBoard();
     }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            values2048[1, 0] = 2;
-            Debug.Log(Equals(values2048[1, 0], 2));
-            UpdateBoard();
-        }
-        if (Input.anyKey) // Check if any key is pressed
-        {
-            CheckInput();
-            UpdateBoard();
-        }
 
-
-    }
     private void UpdateBoard()
     {
         //Update the board
@@ -51,21 +36,21 @@ public class GameManager : MonoBehaviour
             valueText[i].text = values2048[i / 4, i % 4].ToString();
         }
     }
-    private void CheckInput()
+    public void CheckInput(int Selected)
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Selected == 1)
         {
             MoveUp();
         }
-        if (Input.GetKeyDown(KeyCode.S))
+        else if (Selected == 2)
         {
             MoveDown();
         }
-        if (Input.GetKeyDown(KeyCode.A))
+        else if (Selected == 3)
         {
             MoveLeft();
         }
-        if (Input.GetKeyDown(KeyCode.D))
+        else if (Selected == 4)
         {
             MoveRight();
         }
