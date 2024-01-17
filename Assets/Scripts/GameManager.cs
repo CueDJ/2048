@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
+
 public class GameManager : MonoBehaviour
 {
     public int[,] values2048 = new int[4, 4];
@@ -12,10 +13,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI gameOverText;
     private float timer = 0;
     private bool moved = false;
+    private int spawnCount = 1;
+    [SerializeField] private TextMeshProUGUI spawnCountText;
+    [SerializeField] private Slider spawnCountSlider;
     private void Start()
     {
         gameOverImage.CrossFadeAlpha(0, 0, false);
         ResetValues();
+
 
         //Find all the value text
         valueText = parentObject.GetComponentsInChildren<TextMeshProUGUI>();
@@ -81,6 +86,10 @@ public class GameManager : MonoBehaviour
             {
                 valueText[i].color = new Color32(237, 197, 63, 255);
             }
+            else if (values2048[i / 4, i % 4] == 2048)
+            {
+                valueText[i].color = new Color32(237, 194, 46, 255);
+            }
 
         }
     }
@@ -131,46 +140,56 @@ public class GameManager : MonoBehaviour
         if (timer > 1)
         {
             gameOverText.text = "Game Over!";
+        }
+        if (timer > 8)
+        {
             timer = 0;
+            gameOverText.text = "";
+            gameOverImage.CrossFadeAlpha(0, 1, false);
+            ResetValues();
+            for (int i = 0; i < 2; i++)
+            {
+                spawnCount = 1;
+                SpawnNewValue();
+            }
+            spawnCount = ((int)spawnCountSlider.value);
+            UpdateBoard();
         }
     }
     private void SpawnNewValue()
     {
         // Spawn a new value
         // Check if there is a free space
-        bool freeSpace = false;
-        for (int i = 0; i < values2048.GetLength(0); i++)
+
+        for (int k = 0; k < spawnCount; k++)
         {
-            for (int j = 0; j < values2048.GetLength(1); j++)
+            bool freeSpace = false;
+            for (int i = 0; i < values2048.GetLength(0); i++)
             {
-                if (values2048[i, j] == 0)
+                for (int j = 0; j < values2048.GetLength(1); j++)
                 {
-                    freeSpace = true;
-                    break;
+                    if (values2048[i, j] == 0)
+                    {
+                        freeSpace = true;
+                        break;
+                    }
+
                 }
-
             }
-        }
-        if (freeSpace)
-        {
-            // Find a random free space
-            int x = Random.Range(0, 4);
-            int y = Random.Range(0, 4);
-            while (values2048[x, y] != 0)
+            if (freeSpace)
             {
-                x = Random.Range(0, 4);
-                y = Random.Range(0, 4);
-            }
-            // Spawn a new value
-            values2048[x, y] = 2;
+                // Find a random free space
+                int x = Random.Range(0, 4);
+                int y = Random.Range(0, 4);
+                while (values2048[x, y] != 0)
+                {
+                    x = Random.Range(0, 4);
+                    y = Random.Range(0, 4);
+                }
+                // Spawn a new value
+                values2048[x, y] = 2;
 
-        }
-        else
-        {
-            MoveDown(true);
-            MoveUp(true);
-            MoveLeft(true);
-            MoveRight(true);
+            }
         }
     }
     private void ResetValues()
@@ -184,7 +203,11 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
+    public void SpawnNewSlider()
+    {
+        spawnCount = ((int)spawnCountSlider.value);
+        spawnCountText.text = "Spawn Count: " + spawnCount;
+    }
 
 
     // Move Methods (MoveLeft, MoveRight, MoveUp, MoveDown)
@@ -528,6 +551,42 @@ public class GameManager : MonoBehaviour
                         values2048[i, j] = 0;
                         moved = true;
                         continue;
+                    }
+                }
+            }
+        }
+    }
+    //combing the move methods into one method
+    private void MoveAny(int iTimes, int jTimes, bool FalseCheck)
+    {
+        // Move right = jTimes = 1, iTimes = 0
+        // Move left = jTimes = -1, iTimes = 0
+        // Move up = jTimes = 0, iTimes = -1
+        // Move down = jTimes = 0, iTimes = 1
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                if (values2048[i, j] != 0)
+                {
+                    if (i + (3 * iTimes) < values2048.GetLength(0) || j + (3 * jTimes) < values2048.GetLength(1))
+                    {
+                        if (values2048[i, j] == values2048[i + (3 * iTimes), j + (3 * jTimes)])
+                        {
+                            if (values2048[i + (2 * iTimes), j + (2 * jTimes)] == 0 && values2048[i + (2 * iTimes), j + (1 * jTimes)] == 0)
+                            {
+                                if (FalseCheck)
+                                {
+                                    moved = true;
+                                    return;
+                                }
+                                values2048[i + (3 * iTimes), j + (3 * jTimes)] *= 2;
+                                values2048[i, j] = 0;
+                                moved = true;
+                                continue;
+                                // the nesting is insane
+                            }
+                        }
                     }
                 }
             }
