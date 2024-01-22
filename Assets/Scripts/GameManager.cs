@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
         UpdateBoard();
     }
 
-    private void UpdateBoard()
+    public void UpdateBoard()
     {
         //Update the board
         for (int i = 0; i < valueText.Length; i++)
@@ -221,6 +221,7 @@ public class GameManager : MonoBehaviour
             {
                 if (values2048[i, j] != 0)
                 {
+
                     if (j - 3 >= 0 && values2048[i, j] == values2048[i, j - 3] && values2048[i, j - 2] == 0 && values2048[i, j - 1] == 0)
                     {
                         if (FalseCheck)
@@ -233,6 +234,8 @@ public class GameManager : MonoBehaviour
                         moved = true;
                         continue;
                     }
+
+
                     if (j - 2 >= 0 && values2048[i, j] == values2048[i, j - 2] && values2048[i, j - 1] == 0)
                     {
                         if (FalseCheck)
@@ -569,24 +572,39 @@ public class GameManager : MonoBehaviour
             {
                 if (values2048[i, j] != 0)
                 {
-                    if (i + (3 * iTimes) < values2048.GetLength(0) || j + (3 * jTimes) < values2048.GetLength(1))
+                    for (int k = 1; k < 4; k++)
                     {
-                        if (values2048[i, j] == values2048[i + (3 * iTimes), j + (3 * jTimes)])
+                        if (i + (k * iTimes) < values2048.GetLength(0) && j + (k * jTimes) < values2048.GetLength(1))
                         {
-                            if (values2048[i + (2 * iTimes), j + (2 * jTimes)] == 0 && values2048[i + (2 * iTimes), j + (1 * jTimes)] == 0)
+                            if (values2048[i, j] == values2048[i + (k * iTimes), j + (k * jTimes)])
+                            {
+                                if (values2048[i + ((k - 1) * iTimes), j + ((k - 1) * jTimes)] == 0)
+                                {
+                                    if (FalseCheck)
+                                    {
+                                        moved = true;
+                                        return;
+                                    }
+                                    values2048[i + (k * iTimes), j + (k * jTimes)] *= 2;
+                                    values2048[i, j] = 0;
+                                    moved = true;
+                                    continue;
+                                }
+                            }
+                            if (values2048[i + ((k - 1) * iTimes), j + ((k - 1) * jTimes)] == 0)
                             {
                                 if (FalseCheck)
                                 {
                                     moved = true;
                                     return;
                                 }
-                                values2048[i + (3 * iTimes), j + (3 * jTimes)] *= 2;
+                                values2048[i + ((k - 1) * iTimes), j + ((k - 1) * jTimes)] = values2048[i, j];
                                 values2048[i, j] = 0;
                                 moved = true;
                                 continue;
-                                // the nesting is insane
                             }
                         }
+
                     }
                 }
             }
