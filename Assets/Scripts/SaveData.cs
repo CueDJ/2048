@@ -17,6 +17,7 @@ public class SaveData : MonoBehaviour
         {
             SaveLoadText.text = "";
         }
+
     }
     private void Update()
     {
